@@ -1,0 +1,120 @@
+---
+title: "CSDE Homework 9"
+author: "Bradley Kramer"
+date: "3/23/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+##rm(list=ls())
+##estonia_full <- read_delim("~/Downloads/CSDE502-master/estonia.txt", 
+##  " ", escape_double = FALSE, trim_ws = TRUE)
+library(readr)
+belarus_full <- read_delim("~/Documents/GitHub/CSDEHW8/data.txt", 
+  " ", escape_double = FALSE, trim_ws = TRUE)
+
+
+## load my packages
+library(tidyverse)
+library(knitr)
+library(stargazer)
+library(sf)
+library(uwIntroStats)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+1.0 Introduction
+
+Belarus is a a former Soviet bloc nation bordering Poland, Latvia, Russia, Lativa, Lithuania, and Ukraine. In 2016, Lithuania had a population of 9.5 million people, a GDP of $28,645 per capita. In 2007 the average life expectancy was 72.2 years, 66.5 for men and 78.1 for women (wikipedia). There have been several recent political transitions. Belarus declared independence in 1990 and formally separated from the Russia in 1991. General democratic elections were helpd in 1994, elective Alexander Lukashenko. Since then, the government has shifted its election laws from the original two-term limited on the president (10 years total). Lukanshenko has remained in office since 1994. In 2000, Belarus entered a coopertive treaty with Russia.
+
+2.0 METHODS
+
+Database
+
+The Human Mortality Database (HMD, http://www.mortality.org) was created to provide detailed mortality and population data to researchers, students, journalists, policy analysts, and others interested in the history of human longevity. The HMD contains original calculations of death rates and life tables for national populations (countries or areas), as well as the input data used in constructing those tables. The available data consist of death counts from vital statistics, plus census counts, birth counts, and population estimates from various sources. 
+
+```{r summary, echo=FALSE}
+
+# str(belarus_full)
+
+summary(belarus_full$Year)
+
+summary(belarus_full$Total)
+
+summary(belarus_full$Female)
+
+summary(belarus_full$Male)
+
+```
+
+Life expectancy data available: the data extracted countains years 1959-2016. The average total life expectancy for these years 71.4. For females, the average life expectancy is 76.1. For males, the average life expectancy is 66.2
+
+Analysis
+
+For this report, I will plot summary statistics for life expectancy. I will first summarize life expectancy for the whole country. I will then look at Females and Males separately.
+
+I then run a simple linear regression on the overal life expectancy.
+
+3.0 Results
+
+Total life expectancy
+
+We first look at total life expectancy and average trends, Table 1. The average life expectancy remains fairly similar until around 1990, when there is a steep decline. The lowest life expectancy is on either side of 2000. These years map closely to the political changes, with indendence announced in 1991 and a new treaty with Russia announced in 2000. Since early 2000s, there has been a sharp rise in life expectancy to well above previous years.
+
+```{r , echo=FALSE}
+plot(Total~Year, data = belarus_full, main= "Table 1: Total Life Expectancy in Belarus, 1959-2016", xlab= "Year", ylab = "Life Expectancy Age (in Years)", col="blue", type="l")
+```
+
+Feamle life expectancy
+
+We look at average female life expectancy separately, Table 2. The average life expectancy remains more constant. While the trend is still similar to the total life expectancy that maps to major modern transitions in government and power, those transitions are not as pronounced in the average female life expectancy.
+
+
+```{r , echo=FALSE}
+plot(Female~Year, data = belarus_full, main= "Table 2: Female Life Expectancy in Belarus, 1959-2016", xlab= "Year", ylab = "Life Expectancy Age (in Years)", col="blue", type="l")
+```
+
+Male life expectancy
+
+We look at average male life expectancy separately, Table 3. The average life expectancy maps more closely with to major modern transitions in government and power in 1990 and 2000.
+
+```{r , echo=FALSE}
+plot(Male~Year, data = belarus_full, main= "Table 3: Male Life Expectancy in Belarus, 1959-2016", xlab= "Year", ylab = "Life Expectancy Age (in Years)", col="blue", type="l")
+```
+
+Regression analysis
+
+A general linear regression was performed. The results are displayed below for total life expectancy. The general slope is downwards (coefficient = -0.04), indicating that for every year, there is on average a decrease in life expectancy of 0.04 years. Table 4 shows this general trend mapped along the the plot we saw above.
+
+```{r pressure, echo=FALSE}
+model1<-regress("mean", Total~Year, data = belarus_full)
+model1
+```
+
+```{r, echo=FALSE}
+belarus_full.lm1<-lm(Total ~ Year, data=belarus_full)
+summary(belarus_full.lm1)
+
+plot(Total ~ Year, data=belarus_full,main="Table 4: Total life expectancy by Year with linear regression plot")
+abline(belarus_full.lm1)
+```
+
+The regression results look different for females, with a positive slope. The coefficient (0.02) suggests that the average female life expectancy increases by 0.02 over time (per year). The regression results are displayed below.
+
+```{r , echo=FALSE}
+model2<-regress("mean", Female~Year, data = belarus_full)
+model2
+```
+
+For the average male life expectancy the decrease, or negative slope, is more pronounced than the total. The coeffient (-0.07) suggests that male life expectancy decreases by 0.07 years on average over time (per year). The regression results are shown below.
+
+```{r , echo=FALSE}
+model3<-regress("mean", Male~Year, data = belarus_full)
+model3
+```
+
+4.0 Conclusion
+
+In conclusion, we can use the HMD data to show general life expectancy trends. These trends map to the political shifts in the country's history. 
